@@ -201,18 +201,16 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         /*
-         * Set the intake power variable to equal the right trigger, minus the left trigger.
-         * Each trigger outputs a signal from 0-1, with 0 as fully released, and 1 fully depressed.
-         * This gives us proportional control of the intake speed. The speed increases as we pull
-         * the right trigger further. It's occasionally helpful to be able to reverse the intake,
-         * so we also factor in the left trigger. If the left trigger is fully depressed,
-         * the intakePower variable will be -1. If the right trigger is fully depressed, the variable
-         * will be 1. If the driver pulls both triggers, the intake will remain off.
-         * We use this technique (creating a variable, and setting it to our control inputs) to
-         * allow us to avoid setting the same motors/servos power more than once per loop. That can
-         * create erratic behavior.
+         * Set the intake power using the bumpers. Right bumper runs the intake forward (1.0),
+         * left bumper runs it backward (-1.0). If both or neither are pressed, intake is off.
          */
-        intakePower = gamepad1.right_trigger - gamepad1.left_trigger;
+        if (gamepad1.right_bumper) {
+            intakePower = 1.0;
+        } else if (gamepad1.left_bumper) {
+            intakePower = -1.0;
+        } else {
+            intakePower = 0.0;
+        }
 
         launch();
 
@@ -231,8 +229,8 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
         /*
          * Show motor powers on the Driver Station via telemetry.
          */
-        telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftFrontPower, rightFrontPower);
-        telemetry.addData("Triggers", "left (%.2f), right (%.2f)",gamepad1.left_trigger, gamepad1.right_trigger);
+        telemetry.addData("Motors", "LF (%.2f), RF (%.2f), LB (%.2f), RB (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+        telemetry.addData("Intake", "%.1f", intakePower);
     }
 
     /*
@@ -274,27 +272,23 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
             return;
         }
         /*
-         * Calling gamepad1.right_bumper returns a boolean which will be true if the bumper is
-         * held down, and false if it is not. Notably, this will continue to be true for every
-         * cycle of our code that the driver holds down that bumper.
-         * The first step of our launch() function is checking to see if the user is currently
-         * holding down the right gamepad. If they are, then we want to start spinning up the launcher.
-         * Otherwise, we start spinning the launcher down.
+         * The square button (gamepad1.x) spins up the launcher while held.
+         * When released, the launcher spins down.
          */
-        if (gamepad1.right_bumper) {
+        if (gamepad1.x) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else {
             launcher.setVelocity(0);
         }
 
         /*
-         * Here we ask if the driver is currently pressing the right bumper, AND the launcher is
+         * Here we ask if the driver is currently pressing the square/X button, AND the launcher is
          * spinning fast enough to make a successful shot. If it is, then we will turn on the
          * windmill servo to start feeding the elements into the launcher motor. We also
          * add some power to the intake power. This can sometimes help dislodge stuck elements from
          * inside the hopper.
          */
-        if (gamepad1.right_bumper && launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+        if (gamepad1.x && launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
             windmillServo.setPower(1);
             intakePower += 0.5;
         } else {
