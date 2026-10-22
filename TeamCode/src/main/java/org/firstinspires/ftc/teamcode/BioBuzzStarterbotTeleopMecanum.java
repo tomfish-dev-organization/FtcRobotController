@@ -227,10 +227,14 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
         if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
 
         /*
-         * Show motor powers on the Driver Station via telemetry.
+         * Show diagnostic info on the Driver Station via telemetry.
          */
-        telemetry.addData("Motors", "LF (%.2f), RF (%.2f), LB (%.2f), RB (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-        telemetry.addData("Intake", "%.1f", intakePower);
+        telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+        telemetry.addData("Buttons", "RB=%b LB=%b X=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.x);
+        telemetry.addData("Intake", "power=%.1f  configured=%b", intakePower, intake != null);
+        telemetry.addData("Launcher", "configured=%b", launcher != null);
+        telemetry.addData("Servos", "intakeL=%b intakeR=%b windmill=%b", leftIntakeServo != null, rightIntakeServo != null, windmillServo != null);
     }
 
     /*
