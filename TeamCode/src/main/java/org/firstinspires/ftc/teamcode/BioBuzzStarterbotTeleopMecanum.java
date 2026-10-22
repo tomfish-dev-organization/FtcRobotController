@@ -105,11 +105,13 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        launcher = hardwareMap.get(DcMotorEx.class, "launcher");
-        windmillServo = hardwareMap.get(CRServo.class, "windmillServo");
-        leftIntakeServo = hardwareMap.get(CRServo.class, "left_intake_servo");
-        rightIntakeServo = hardwareMap.get(CRServo.class, "right_intake_servo");
+        // Mechanisms are optional: tryGet returns null if a device isn't in the robot config,
+        // so the robot can drive with only the four wheel motors configured.
+        intake = hardwareMap.tryGet(DcMotor.class, "intake");
+        launcher = hardwareMap.tryGet(DcMotorEx.class, "launcher");
+        windmillServo = hardwareMap.tryGet(CRServo.class, "windmillServo");
+        leftIntakeServo = hardwareMap.tryGet(CRServo.class, "left_intake_servo");
+        rightIntakeServo = hardwareMap.tryGet(CRServo.class, "right_intake_servo");
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -132,7 +134,7 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
         rightFrontDrive.setZeroPowerBehavior(BRAKE);
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
-        intake.setZeroPowerBehavior(BRAKE);
+        if (intake != null) intake.setZeroPowerBehavior(BRAKE);
 
         /*
          * Here we set our launcher to the RUN_USING_ENCODER runmode.
@@ -142,23 +144,24 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
          * through any wiring.
          */
 
-        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(40, 0, 0, 12.5));
+        if (launcher != null) {
+            launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(40, 0, 0, 12.5));
+        }
 
         /*
          * set Feeders to an initial value to initialize the servo controller
          */
-        leftIntakeServo.setPower(0);
-        rightIntakeServo.setPower(0);
-        windmillServo.setPower(0);
+        if (leftIntakeServo != null) leftIntakeServo.setPower(0);
+        if (rightIntakeServo != null) rightIntakeServo.setPower(0);
+        if (windmillServo != null) windmillServo.setPower(0);
 
         /*
          * Much like our drivetrain motors, we set the right intake servo to reverse so that both
          * servos work to pull elements into the intake.
          */
-        rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
-        windmillServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (rightIntakeServo != null) rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        if (windmillServo != null) windmillServo.setDirection(DcMotorSimple.Direction.REVERSE);
 
         /*
          * Tell the driver that initialization is complete.
@@ -221,9 +224,9 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
          * variable before we write it to our motor and servos.
          */
 
-        intake.setPower(intakePower);
-        leftIntakeServo.setPower(intakePower);
-        rightIntakeServo.setPower(intakePower);
+        if (intake != null) intake.setPower(intakePower);
+        if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
+        if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
 
         /*
          * Show motor powers on the Driver Station via telemetry.
@@ -266,6 +269,10 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
     }
 
     void launch() {
+        // Nothing to do if the launcher or windmill servo isn't configured.
+        if (launcher == null || windmillServo == null) {
+            return;
+        }
         /*
          * Calling gamepad1.right_bumper returns a boolean which will be true if the bumper is
          * held down, and false if it is not. Notably, this will continue to be true for every
