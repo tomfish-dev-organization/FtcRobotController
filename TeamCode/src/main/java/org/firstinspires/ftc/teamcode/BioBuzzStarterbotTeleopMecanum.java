@@ -23,6 +23,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
+import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -32,26 +33,20 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-/*
- * This file includes a teleop (driver-controlled) file for the goBILDA® StarterBot with Mecanum
- * Wheels for the 2026-2027 FIRST® Tech Challenge. On top of a mecanum wheel drivetrain, it uses
- * one motor driving an intake roller, two servos which pull elements out of corners, and a high-speed
- * launcher motor.
- *
- * Likely the most niche concept we'll use in this example is closed-loop motor velocity control.
- * This control method reads the current speed as reported by the motor's encoder and applies a varying
- * amount of power to reach, and then hold a target velocity. The FTC SDK calls this control method
- * "RUN_USING_ENCODER". This contrasts to the default "RUN_WITHOUT_ENCODER" where you control the power
- * applied to the motor directly.
- * Since the dynamics of a launcher wheel system varies greatly from those of most other FTC mechanisms,
- * we will also need to adjust the "PIDF" coefficients with some that are a better fit for our application.
- */
-
 @TeleOp(name = "Mec BioBuzz StarterBot Teleop", group = "StarterBot")
 //@Disabled
 public class BioBuzzStarterbotTeleopMecanum extends OpMode {
 
-    // Declare OpMode members.
+    /*
+     * Direction constants: if a motor or servo spins the wrong way, flip its
+     * direction here (FORWARD <-> REVERSE). No other code changes needed.
+     */
+    public static final DcMotorSimple.Direction LAUNCHER_DIRECTION = DcMotorSimple.Direction.FORWARD;
+    public static final DcMotorSimple.Direction INTAKE_DIRECTION = DcMotorSimple.Direction.FORWARD;
+    public static final DcMotorSimple.Direction LEFT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
+    public static final DcMotorSimple.Direction RIGHT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.REVERSE;
+    public static final DcMotorSimple.Direction WINDMILL_DIRECTION = DcMotorSimple.Direction.REVERSE;
+
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -62,148 +57,83 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
     private CRServo rightIntakeServo = null;
     private CRServo windmillServo = null;
 
-
-    /*
-     * These two variables are used to control the velocity of the launcher motor.
-     * They are both in encoder ticks per second. The motors we use in the FIRST Tech Challenge
-     * have encoders with a resolution of 28 ticks per revolution. We can convert this to RPM
-     * by dividing the value by 28, to get to revolutions per second, before multiplying by 60
-     * to get revolutions per minute.
-     * We pass the target velocity variable to our motor to set the goal. We use the min velocity
-     * in the launch() function to only run the windmill servo when the motor is spinning fast
-     * enough to make a successful throw.
-     */
     public final int LAUNCHER_TARGET_VELOCITY = 1250; //2678 RPM
     public final int LAUNCHER_MIN_VELOCITY = 1200; //2571 RPM
 
-
-    /*
-     * These four variables store the power we need to apply to the motors. In other cases, we may
-     * choose to declare these variables inside the mecanumDrive() function, instead we declare them
-     * here so that we can access them in our main loop for telemetry.
-     */
     double leftFrontPower;
     double rightFrontPower;
     double leftBackPower;
     double rightBackPower;
 
-    // Create a variable to set to the intake.
     double intakePower;
 
-    /*
-     * Code to run ONCE when the driver hits INIT
-     */
     @Override
     public void init() {
-
-        /*
-         * Initialize the hardware variables. Note that the strings used here as parameters
-         * to 'get' must correspond to the names assigned during the robot configuration
-         * step.
-         */
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-        // Mechanisms are optional: tryGet returns null if a device isn't in the robot config,
-        // so the robot can drive with only the four wheel motors configured.
+
         intake = hardwareMap.tryGet(DcMotor.class, "intake");
         launcher = hardwareMap.tryGet(DcMotorEx.class, "launcher");
         windmillServo = hardwareMap.tryGet(CRServo.class, "windmillServo");
         leftIntakeServo = hardwareMap.tryGet(CRServo.class, "left_intake_servo");
         rightIntakeServo = hardwareMap.tryGet(CRServo.class, "right_intake_servo");
 
-        /*
-         * To drive forward, most robots need the motor on one side to be reversed,
-         * because the axles point in opposite directions. Pushing the left stick forward
-         * MUST make robot go forward. So adjust these two lines based on your first test drive.
-         * Note: The settings here assume direct drive on left and right wheels. Gear
-         * Reduction or 90 Deg drives may require direction flips
-         */
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        /*
-         * Setting zeroPowerBehavior to BRAKE enables a "brake mode". This causes the motor to
-         * slow down much faster when it is coasting. This creates a much more controllable
-         * drivetrain. As the robot stops much quicker.
-         */
         leftFrontDrive.setZeroPowerBehavior(BRAKE);
         rightFrontDrive.setZeroPowerBehavior(BRAKE);
         leftBackDrive.setZeroPowerBehavior(BRAKE);
         rightBackDrive.setZeroPowerBehavior(BRAKE);
-        if (intake != null) intake.setZeroPowerBehavior(BRAKE);
 
-        /*
-         * Here we set our launcher to the RUN_USING_ENCODER runmode.
-         * If you notice that you have no control over the velocity of the motor, it just jumps
-         * right to a number much higher than your set point, make sure that your encoders are plugged
-         * into the port right beside the motor itself. And that the motors polarity is consistent
-         * through any wiring.
-         */
+        if (intake != null) {
+            intake.setZeroPowerBehavior(BRAKE);
+            intake.setDirection(INTAKE_DIRECTION);
+        }
 
         if (launcher != null) {
+            launcher.setDirection(LAUNCHER_DIRECTION);
+            launcher.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            launcher.setZeroPowerBehavior(FLOAT);
             launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(40, 0, 0, 12.5));
         }
 
-        /*
-         * set Feeders to an initial value to initialize the servo controller
-         */
-        if (leftIntakeServo != null) leftIntakeServo.setPower(0);
-        if (rightIntakeServo != null) rightIntakeServo.setPower(0);
-        if (windmillServo != null) windmillServo.setPower(0);
+        if (leftIntakeServo != null) {
+            leftIntakeServo.setDirection(LEFT_INTAKE_SERVO_DIRECTION);
+            leftIntakeServo.setPower(0);
+        }
+        if (rightIntakeServo != null) {
+            rightIntakeServo.setDirection(RIGHT_INTAKE_SERVO_DIRECTION);
+            rightIntakeServo.setPower(0);
+        }
+        if (windmillServo != null) {
+            windmillServo.setDirection(WINDMILL_DIRECTION);
+            windmillServo.setPower(0);
+        }
 
-        /*
-         * Much like our drivetrain motors, we set the right intake servo to reverse so that both
-         * servos work to pull elements into the intake.
-         */
-        if (rightIntakeServo != null) rightIntakeServo.setDirection(DcMotorSimple.Direction.REVERSE);
-        if (windmillServo != null) windmillServo.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        /*
-         * Tell the driver that initialization is complete.
-         */
         telemetry.addData("Status", "Initialized");
+        if (intake == null) telemetry.addData("WARNING", "intake not configured");
+        if (launcher == null) telemetry.addData("WARNING", "launcher not configured");
+        if (windmillServo == null) telemetry.addData("WARNING", "windmillServo not configured");
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit START
-     */
     @Override
     public void init_loop() {
     }
 
-    /*
-     * Code to run ONCE when the driver hits START
-     */
     @Override
     public void start() {
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits START but before they hit STOP
-     */
     @Override
     public void loop() {
-        /*
-         * Here we call a function called mecanumDrive. The mecanumDrive function takes the input from
-         * the joysticks, and applies power to the drive motors to move the robot as requested
-         * by the driver. Moving the left joystick forwards/back moves all motors forwards/back,
-         * moving the right joystick left/right rotates the robot clockwise or counterclockwise,
-         * and moving the left joystick left moves the motors in the right way to create a sideways
-         * "strafe" movement. Combinations of these inputs can be used to create more complex maneuvers.
-         * Note, moving the joystick forward on most gamepads results in a negative signal, so
-         * we invert it before passing it to the function.
-         */
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
-        /*
-         * Set the intake power using the bumpers. Right bumper runs the intake forward (1.0),
-         * left bumper runs it backward (-1.0). If both or neither are pressed, intake is off.
-         */
         if (gamepad1.right_bumper) {
             intakePower = 1.0;
         } else if (gamepad1.left_bumper) {
@@ -214,32 +144,23 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
 
         launch();
 
-        /*
-         * Here we set our intake motor and servos to their intake power. The order of operations
-         * here is important though. The gamepad triggers define the starting point for the intake
-         * power variable in each loop of our code, but inside our launch function we also sometimes
-         * change the intake power. So we need to give our launch function a chance to modify the
-         * variable before we write it to our motor and servos.
-         */
-
         if (intake != null) intake.setPower(intakePower);
         if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
         if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
 
-        /*
-         * Show diagnostic info on the Driver Station via telemetry.
-         */
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
         telemetry.addData("Buttons", "RB=%b LB=%b X=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.x);
-        telemetry.addData("Intake", "power=%.1f  configured=%b", intakePower, intake != null);
-        telemetry.addData("Launcher", "configured=%b", launcher != null);
-        telemetry.addData("Servos", "intakeL=%b intakeR=%b windmill=%b", leftIntakeServo != null, rightIntakeServo != null, windmillServo != null);
+        telemetry.addData("Intake", "power=%.1f | %s", intakePower, intake != null ? "OK" : "NOT CONFIGURED");
+        if (launcher != null) {
+            double speed = Math.abs(launcher.getVelocity());
+            telemetry.addData("Launcher", "%.0f / %d %s", speed, LAUNCHER_TARGET_VELOCITY, speed >= LAUNCHER_MIN_VELOCITY ? "READY" : "");
+        } else {
+            telemetry.addData("Launcher", "NOT CONFIGURED");
+        }
+        telemetry.addData("Windmill", windmillServo != null ? "OK" : "NOT CONFIGURED");
     }
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
     @Override
     public void stop() {
     }
@@ -261,9 +182,6 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
             rightBackPower /= max;
         }
 
-        /*
-         * Send calculated power to wheels
-         */
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
@@ -271,28 +189,17 @@ public class BioBuzzStarterbotTeleopMecanum extends OpMode {
     }
 
     void launch() {
-        // Nothing to do if the launcher or windmill servo isn't configured.
         if (launcher == null || windmillServo == null) {
             return;
         }
-        /*
-         * The square button (gamepad1.x) spins up the launcher while held.
-         * When released, the launcher spins down.
-         */
+
         if (gamepad1.x) {
             launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
         } else {
             launcher.setVelocity(0);
         }
 
-        /*
-         * Here we ask if the driver is currently pressing the square/X button, AND the launcher is
-         * spinning fast enough to make a successful shot. If it is, then we will turn on the
-         * windmill servo to start feeding the elements into the launcher motor. We also
-         * add some power to the intake power. This can sometimes help dislodge stuck elements from
-         * inside the hopper.
-         */
-        if (gamepad1.x && launcher.getVelocity() > LAUNCHER_MIN_VELOCITY) {
+        if (gamepad1.x && Math.abs(launcher.getVelocity()) >= LAUNCHER_MIN_VELOCITY) {
             windmillServo.setPower(1);
             intakePower += 0.5;
         } else {
