@@ -38,6 +38,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         telemetry.addData("Status", "Initialized");
         if (intake == null) telemetry.addData("WARNING", "intake not configured");
         if (launcher == null) telemetry.addData("WARNING", "launcher not configured");
+        if (transfer == null) telemetry.addData("WARNING", "transfer not configured");
     }
 
     @Override
@@ -62,19 +63,32 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
         launch();
 
+        if (transfer != null) {
+            if (gamepad1.dpad_down) {
+                transfer.setPosition(TRANSFER_TILT_POSITION);
+            } else if (gamepad1.dpad_up) {
+                transfer.setPosition(TRANSFER_STOW_POSITION);
+            }
+        }
+
         if (intake != null) intake.setPower(intakePower);
         if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
         if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
 
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-        telemetry.addData("Buttons", "RB=%b LB=%b X=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.x);
+        telemetry.addData("Buttons", "RB=%b LB=%b X=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down);
         telemetry.addData("Intake", "power=%.1f | %s", intakePower, intake != null ? "OK" : "NOT CONFIGURED");
         if (launcher != null) {
             double speed = Math.abs(launcher.getVelocity());
             telemetry.addData("Launcher", "%.0f / %d %s", speed, LAUNCHER_TARGET_VELOCITY, speed >= LAUNCHER_MIN_VELOCITY ? "READY" : "");
         } else {
             telemetry.addData("Launcher", "NOT CONFIGURED");
+        }
+        if (transfer != null) {
+            telemetry.addData("Transfer", "pos=%.2f", transfer.getPosition());
+        } else {
+            telemetry.addData("Transfer", "NOT CONFIGURED");
         }
     }
 

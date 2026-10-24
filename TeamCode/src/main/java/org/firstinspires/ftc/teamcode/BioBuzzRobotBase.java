@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /*
  * Shared hardware setup for the BioBuzz StarterBot. Both the teleop and the autonomous
@@ -37,6 +38,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     protected DcMotor intake = null;
     protected CRServo leftIntakeServo = null;
     protected CRServo rightIntakeServo = null;
+    protected Servo transfer = null;
 
     /*
      * These two variables are used to control the velocity of the launcher motor.
@@ -47,6 +49,9 @@ public abstract class BioBuzzRobotBase extends OpMode {
      */
     public static final int LAUNCHER_TARGET_VELOCITY = 1250; //2678 RPM
     public static final int LAUNCHER_MIN_VELOCITY = 1200; //2571 RPM
+
+    public static final double TRANSFER_STOW_POSITION = 0.0;
+    public static final double TRANSFER_TILT_POSITION = 1.0;
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
@@ -118,6 +123,11 @@ public abstract class BioBuzzRobotBase extends OpMode {
          * servos work to pull elements into the intake. Setting power also initializes the
          * servo controller.
          */
+        transfer = hardwareMap.tryGet(Servo.class, "transfer");
+        if (transfer != null) {
+            transfer.setPosition(TRANSFER_STOW_POSITION);
+        }
+
         if (leftIntakeServo != null) {
             leftIntakeServo.setDirection(LEFT_INTAKE_SERVO_DIRECTION);
             leftIntakeServo.setPower(0);
