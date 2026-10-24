@@ -35,7 +35,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     double intakePower;
     ShootState shootState = ShootState.IDLE;
-    boolean prevX = false;
+    boolean prevSquare = false;
     ElapsedTime fireTimer = new ElapsedTime();
 
     @Override
@@ -68,19 +68,19 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
             intakePower = 0.0;
         }
 
-        boolean xPressed = gamepad1.x && !prevX;
-        prevX = gamepad1.x;
+        boolean squarePressed = gamepad1.square && !prevSquare;
+        prevSquare = gamepad1.square;
 
         switch (shootState) {
             case IDLE:
-                if (xPressed && launcher != null) {
+                if (squarePressed && launcher != null) {
                     shootState = ShootState.SPINNING_UP;
                     launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 }
                 break;
 
             case SPINNING_UP:
-                if (xPressed) {
+                if (squarePressed) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
                     if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
@@ -93,7 +93,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
             case FIRING:
                 intakePower = 1.0;
-                if (xPressed || fireTimer.seconds() >= FIRE_DURATION) {
+                if (squarePressed || fireTimer.seconds() >= FIRE_DURATION) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
                     if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
@@ -117,7 +117,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-        telemetry.addData("Buttons", "RB=%b LB=%b X=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down);
+        telemetry.addData("Buttons", "RB=%b LB=%b Square=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.dpad_up, gamepad1.dpad_down);
         telemetry.addData("Intake", "power=%.1f | %s", intakePower, intake != null ? "OK" : "NOT CONFIGURED");
         if (launcher != null) {
             double speed = Math.abs(launcher.getVelocity());
