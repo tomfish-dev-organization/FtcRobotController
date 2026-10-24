@@ -23,16 +23,23 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Mec BioBuzz StarterBot Teleop", group = "StarterBot")
 //@Disabled
 public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
+    enum ShootState { IDLE, SPINNING_UP, FIRING }
+
+    static final double FIRE_DURATION = 1.5;
+
     double intakePower;
+    ShootState shootState = ShootState.IDLE;
+    boolean prevX = false;
+    ElapsedTime fireTimer = new ElapsedTime();
 
     @Override
     public void init() {
-        // Hardware declarations and setup are shared with the autonomous in BioBuzzRobotBase.
         initHardware();
 
         telemetry.addData("Status", "Initialized");
@@ -61,9 +68,40 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
             intakePower = 0.0;
         }
 
-        launch();
+        boolean xPressed = gamepad1.x && !prevX;
+        prevX = gamepad1.x;
 
-        if (transfer != null) {
+        switch (shootState) {
+            case IDLE:
+                if (xPressed && launcher != null) {
+                    shootState = ShootState.SPINNING_UP;
+                    launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+                }
+                break;
+
+            case SPINNING_UP:
+                if (xPressed) {
+                    shootState = ShootState.IDLE;
+                    launcher.setVelocity(0);
+                    if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
+                } else if (Math.abs(launcher.getVelocity()) >= LAUNCHER_MIN_VELOCITY) {
+                    shootState = ShootState.FIRING;
+                    fireTimer.reset();
+                    if (transfer != null) transfer.setPosition(TRANSFER_TILT_POSITION);
+                }
+                break;
+
+            case FIRING:
+                intakePower = 1.0;
+                if (xPressed || fireTimer.seconds() >= FIRE_DURATION) {
+                    shootState = ShootState.IDLE;
+                    launcher.setVelocity(0);
+                    if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
+                }
+                break;
+        }
+
+        if (shootState == ShootState.IDLE && transfer != null) {
             if (gamepad1.dpad_down) {
                 transfer.setPosition(TRANSFER_TILT_POSITION);
             } else if (gamepad1.dpad_up) {
@@ -75,6 +113,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
         if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
 
+        telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
         telemetry.addData("Buttons", "RB=%b LB=%b X=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.x, gamepad1.dpad_up, gamepad1.dpad_down);
@@ -94,21 +133,5 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     @Override
     public void stop() {
-    }
-
-    void launch() {
-        if (launcher == null) {
-            return;
-        }
-
-        if (gamepad1.x) {
-            launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
-        } else {
-            launcher.setVelocity(0);
-        }
-
-        if (gamepad1.x && Math.abs(launcher.getVelocity()) >= LAUNCHER_MIN_VELOCITY) {
-            intakePower += 0.5;
-        }
     }
 }
