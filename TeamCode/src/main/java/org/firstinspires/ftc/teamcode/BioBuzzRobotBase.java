@@ -52,8 +52,8 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_TARGET_VELOCITY = 300; //643 RPM (TEST: slow)
     public static final int LAUNCHER_MIN_VELOCITY = 250; //536 RPM (TEST: slow)
 
-    public static final double TRANSFER_STOW_POSITION = 0.111; // 20 deg: resting, toward the intake
-    public static final double TRANSFER_TILT_POSITION = 0.0;   // 0 deg: tilted 20 deg toward the flywheel
+    public static final double TRANSFER_STOW_POSITION = 0.094; // 17 deg: resting, toward the intake
+    public static final double TRANSFER_TILT_POSITION = 0.0;   // 0 deg: tilted 17 deg toward the flywheel
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
