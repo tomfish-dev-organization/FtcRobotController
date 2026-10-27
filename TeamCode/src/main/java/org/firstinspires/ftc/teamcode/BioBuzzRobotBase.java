@@ -47,11 +47,11 @@ public abstract class BioBuzzRobotBase extends OpMode {
      * by dividing the value by 28, to get to revolutions per second, before multiplying by 60
      * to get revolutions per minute.
      */
-    public static final int LAUNCHER_TARGET_VELOCITY = 1250; //2678 RPM
-    public static final int LAUNCHER_MIN_VELOCITY = 1200; //2571 RPM
+    public static final int LAUNCHER_TARGET_VELOCITY = 300; //643 RPM (TEST: slow)
+    public static final int LAUNCHER_MIN_VELOCITY = 250; //536 RPM (TEST: slow)
 
     public static final double TRANSFER_STOW_POSITION = 0.0;
-    public static final double TRANSFER_TILT_POSITION = 0.167;
+    public static final double TRANSFER_TILT_POSITION = 0.028;
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
