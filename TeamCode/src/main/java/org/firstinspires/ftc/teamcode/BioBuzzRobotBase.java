@@ -52,7 +52,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_TARGET_VELOCITY = 300; //643 RPM (TEST: slow)
     public static final int LAUNCHER_MIN_VELOCITY = 250; //536 RPM (TEST: slow)
 
-    public static final double TRANSFER_STOW_POSITION = 0.111;
+    public static final double TRANSFER_STOW_POSITION = 0.094;
     public static final double TRANSFER_TILT_POSITION = 0.0;
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
