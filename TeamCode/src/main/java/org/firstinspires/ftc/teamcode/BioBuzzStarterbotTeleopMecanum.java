@@ -101,7 +101,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
                 break;
         }
 
-        if (shootState == ShootState.IDLE && transfer != null) {
+        if (transfer != null) {
             if (gamepad1.dpad_down) {
                 transfer.setPosition(TRANSFER_TILT_POSITION);
             } else if (gamepad1.dpad_up) {
