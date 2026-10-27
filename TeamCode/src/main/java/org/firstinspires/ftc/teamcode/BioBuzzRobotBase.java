@@ -28,6 +28,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final DcMotorSimple.Direction INTAKE_DIRECTION = DcMotorSimple.Direction.FORWARD;
     public static final DcMotorSimple.Direction LEFT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
     public static final DcMotorSimple.Direction RIGHT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.REVERSE;
+    public static final DcMotorSimple.Direction WINDMILL_DIRECTION = DcMotorSimple.Direction.FORWARD;
 
     // Declare OpMode members.
     protected DcMotor leftFrontDrive = null;
@@ -39,6 +40,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     protected CRServo leftIntakeServo = null;
     protected CRServo rightIntakeServo = null;
     protected Servo transfer = null;
+    protected CRServo windmill = null;
 
     /*
      * These two variables are used to control the velocity of the launcher motor.
@@ -135,6 +137,12 @@ public abstract class BioBuzzRobotBase extends OpMode {
         if (rightIntakeServo != null) {
             rightIntakeServo.setDirection(RIGHT_INTAKE_SERVO_DIRECTION);
             rightIntakeServo.setPower(0);
+        }
+
+        windmill = hardwareMap.tryGet(CRServo.class, "windmill");
+        if (windmill != null) {
+            windmill.setDirection(WINDMILL_DIRECTION);
+            windmill.setPower(0);
         }
     }
 

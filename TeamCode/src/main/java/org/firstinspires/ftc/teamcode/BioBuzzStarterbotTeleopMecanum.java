@@ -112,6 +112,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         if (intake != null) intake.setPower(intakePower);
         if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
         if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
+        if (windmill != null) windmill.setPower(intakePower);
 
         telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
