@@ -53,7 +53,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_MIN_VELOCITY = 250; //536 RPM (TEST: slow)
 
     public static final double TRANSFER_STOW_POSITION = 0.0;
-    public static final double TRANSFER_TILT_POSITION = 0.083;
+    public static final double TRANSFER_TILT_POSITION = 0.139;
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
@@ -126,9 +126,6 @@ public abstract class BioBuzzRobotBase extends OpMode {
          * servo controller.
          */
         transfer = hardwareMap.tryGet(Servo.class, "transfer");
-        if (transfer != null) {
-            transfer.setPosition(TRANSFER_STOW_POSITION);
-        }
 
         if (leftIntakeServo != null) {
             leftIntakeServo.setDirection(LEFT_INTAKE_SERVO_DIRECTION);
