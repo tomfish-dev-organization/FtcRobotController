@@ -24,7 +24,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
      * Direction constants: if a motor or servo spins the wrong way, flip its
      * direction here (FORWARD <-> REVERSE). No other code changes needed.
      */
-    public static final DcMotorSimple.Direction LAUNCHER_DIRECTION = DcMotorSimple.Direction.FORWARD;
+    public static final DcMotorSimple.Direction LAUNCHER_DIRECTION = DcMotorSimple.Direction.REVERSE;
     public static final DcMotorSimple.Direction INTAKE_DIRECTION = DcMotorSimple.Direction.FORWARD;
     public static final DcMotorSimple.Direction LEFT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
     public static final DcMotorSimple.Direction RIGHT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.REVERSE;
@@ -49,11 +49,11 @@ public abstract class BioBuzzRobotBase extends OpMode {
      * by dividing the value by 28, to get to revolutions per second, before multiplying by 60
      * to get revolutions per minute.
      */
-    public static final int LAUNCHER_TARGET_VELOCITY = 300; //643 RPM (TEST: slow)
-    public static final int LAUNCHER_MIN_VELOCITY = 250; //536 RPM (TEST: slow)
+    public static final int LAUNCHER_TARGET_VELOCITY = 800; //643 RPM (TEST: slow)
+    public static final int LAUNCHER_MIN_VELOCITY = 700; //536 RPM (TEST: slow)
 
     public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
-    public static final double TRANSFER_TILT_POSITION = 0.044; // 8 deg: tilted 4 deg toward the flywheel (0 hits the wheel)
+    public static final double TRANSFER_TILT_POSITION = 0.10; // 8 deg: tilted 4 deg toward the flywheel (0 hits the wheel)
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
