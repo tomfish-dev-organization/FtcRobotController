@@ -46,6 +46,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         if (intake == null) telemetry.addData("WARNING", "intake not configured");
         if (launcher == null) telemetry.addData("WARNING", "launcher not configured");
         if (transfer == null) telemetry.addData("WARNING", "transfer not configured");
+        if (windmill == null) telemetry.addData("WARNING", "windmill not configured");
     }
 
     @Override
@@ -130,6 +131,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         } else {
             telemetry.addData("Transfer", "NOT CONFIGURED");
         }
+        telemetry.addData("Windmill", windmill != null ? String.format("power=%.1f", windmill.getPower()) : "NOT CONFIGURED");
     }
 
     @Override
