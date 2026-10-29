@@ -62,11 +62,11 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         if (gamepad1.right_bumper) {
-            intakePower = 5.0;
+            intakePower = 1.0;
         } else if (gamepad1.left_bumper) {
-            intakePower = -5.0;
+            intakePower = -1.0;
         } else {
-            intakePower = 2.0;
+            intakePower = 0.0;
         }
 
         boolean squarePressed = gamepad1.square && !prevSquare;
