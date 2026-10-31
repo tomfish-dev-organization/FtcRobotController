@@ -37,8 +37,6 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
     double intakePower;
     ShootState shootState = ShootState.IDLE;
     boolean prevSquare = false;
-    boolean prevTriangle = false;
-    boolean launcherOn = false;
     ElapsedTime fireTimer = new ElapsedTime();
 
     @Override
@@ -79,7 +77,6 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
             case IDLE:
                 if (squarePressed && launcher != null) {
                     shootState = ShootState.SPINNING_UP;
-                    launcherOn = false;
                     launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
                 }
                 break;
@@ -118,13 +115,6 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
                 break;
         }
 
-        boolean trianglePressed = gamepad1.triangle && !prevTriangle;
-        prevTriangle = gamepad1.triangle;
-        if (trianglePressed && launcher != null && shootState == ShootState.IDLE) {
-            launcherOn = !launcherOn;
-            launcher.setVelocity(launcherOn ? LAUNCHER_TARGET_VELOCITY : 0);
-        }
-
         if (transfer != null) {
             if (gamepad1.dpad_down) {
                 transfer.setPosition(TRANSFER_TILT_POSITION);
@@ -141,7 +131,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-        telemetry.addData("Buttons", "RB=%b LB=%b Sq=%b Tri=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.triangle, gamepad1.dpad_up, gamepad1.dpad_down);
+        telemetry.addData("Buttons", "RB=%b LB=%b Square=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.dpad_up, gamepad1.dpad_down);
         telemetry.addData("Intake", "power=%.1f | %s", intakePower, intake != null ? "OK" : "NOT CONFIGURED");
         if (launcher != null) {
             double speed = Math.abs(launcher.getVelocity());
