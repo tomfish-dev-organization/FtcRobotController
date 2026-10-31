@@ -31,7 +31,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     enum ShootState { IDLE, SPINNING_UP, FEEDING, FIRING }
 
-    static final double FEED_DURATION = 1.0;
+    static final double FEED_DURATION = 2.0;
     static final double FIRE_DURATION = 1.5;
 
     double intakePower;
