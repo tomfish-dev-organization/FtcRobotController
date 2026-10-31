@@ -29,8 +29,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //@Disabled
 public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
-    enum ShootState { IDLE, SPINNING_UP, FIRING }
+    enum ShootState { IDLE, SPINNING_UP, FEEDING, FIRING }
 
+    static final double FEED_DURATION = 1.0;
     static final double FIRE_DURATION = 1.5;
 
     double intakePower;
@@ -86,6 +87,18 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
                     launcher.setVelocity(0);
                     if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
                 } else if (Math.abs(launcher.getVelocity()) >= LAUNCHER_MIN_VELOCITY) {
+                    shootState = ShootState.FEEDING;
+                    fireTimer.reset();
+                }
+                break;
+
+            case FEEDING:
+                intakePower = 1.0;
+                if (squarePressed) {
+                    shootState = ShootState.IDLE;
+                    launcher.setVelocity(0);
+                    if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
+                } else if (fireTimer.seconds() >= FEED_DURATION) {
                     shootState = ShootState.FIRING;
                     fireTimer.reset();
                     if (transfer != null) transfer.setPosition(TRANSFER_TILT_POSITION);
