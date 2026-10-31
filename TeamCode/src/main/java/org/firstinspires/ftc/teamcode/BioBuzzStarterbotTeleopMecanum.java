@@ -93,7 +93,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
                 break;
 
             case FEEDING:
-                intakePower = -1.0;
+                intakePower = 1.0;
                 if (squarePressed) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
@@ -106,7 +106,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
                 break;
 
             case FIRING:
-                intakePower = -1.0;
+                intakePower = 1.0;
                 if (squarePressed || fireTimer.seconds() >= FIRE_DURATION) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
