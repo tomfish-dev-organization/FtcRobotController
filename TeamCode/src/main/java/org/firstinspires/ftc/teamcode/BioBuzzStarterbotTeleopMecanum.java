@@ -39,6 +39,20 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
     boolean prevSquare = false;
     ElapsedTime fireTimer = new ElapsedTime();
 
+    // Smoothed drive commands (see deadzone() and slew()).
+    private double fwd, str, rot;
+
+    // Ignore tiny stick readings so the robot doesn't twitch at rest.
+    private double deadzone(double v) {
+        return Math.abs(v) < 0.05 ? 0 : v;
+    }
+
+    // Limit how fast power can change each loop, so starts and stops are smooth.
+    private double slew(double target, double current) {
+        double maxStep = 0.1; // smaller = smoother, but slower to respond
+        return current + Math.max(-maxStep, Math.min(maxStep, target - current));
+    }
+
     @Override
     public void init() {
         initHardware();
@@ -60,7 +74,10 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     @Override
     public void loop() {
-        mecanumDrive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+        fwd = slew(deadzone(-gamepad1.left_stick_y), fwd);
+        str = slew(deadzone(gamepad1.left_stick_x), str);
+        rot = slew(deadzone(gamepad1.right_stick_x), rot);
+        mecanumDrive(fwd, str, rot);
 
         if (gamepad1.right_bumper) {
             intakePower = 1.0;
