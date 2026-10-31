@@ -49,8 +49,8 @@ public abstract class BioBuzzRobotBase extends OpMode {
      * by dividing the value by 28, to get to revolutions per second, before multiplying by 60
      * to get revolutions per minute.
      */
-    public static final int LAUNCHER_TARGET_VELOCITY = 940;
-    public static final int LAUNCHER_MIN_VELOCITY = 920;
+    public static final int LAUNCHER_TARGET_VELOCITY = 900;
+    public static final int LAUNCHER_MIN_VELOCITY = 850;
 
     public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
     public static final double TRANSFER_TILT_POSITION = 0.10; // 8 deg: tilted 4 deg toward the flywheel (0 hits the wheel)
