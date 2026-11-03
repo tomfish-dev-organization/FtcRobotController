@@ -28,7 +28,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final DcMotorSimple.Direction INTAKE_DIRECTION = DcMotorSimple.Direction.REVERSE;
     public static final DcMotorSimple.Direction LEFT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.REVERSE;
     public static final DcMotorSimple.Direction RIGHT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
-    public static final DcMotorSimple.Direction WINDMILL_DIRECTION = DcMotorSimple.Direction.REVERSE;
+
 
     // Declare OpMode members.
     protected DcMotor leftFrontDrive = null;
@@ -40,7 +40,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     protected CRServo leftIntakeServo = null;
     protected CRServo rightIntakeServo = null;
     protected Servo transfer = null;
-    protected CRServo windmill = null;
+    protected Servo windmill = null;
 
     /*
      * These two variables are used to control the velocity of the launcher motor.
@@ -49,11 +49,13 @@ public abstract class BioBuzzRobotBase extends OpMode {
      * by dividing the value by 28, to get to revolutions per second, before multiplying by 60
      * to get revolutions per minute.
      */
-    public static final int LAUNCHER_TARGET_VELOCITY = 1000;
-    public static final int LAUNCHER_MIN_VELOCITY = 900;
+    public static final int LAUNCHER_TARGET_VELOCITY = 1125;
+    public static final int LAUNCHER_MIN_VELOCITY = 1050;
 
     public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
     public static final double TRANSFER_TILT_POSITION = 0.10; // 8 deg: tilted 4 deg toward the flywheel (0 hits the wheel)
+    public static final double WINDMILL_GUARDING_POSITION = 0;
+    public static final double WINDMILL_SHOOTING_POSITION = 0.2; // ~60 deg on a 300 deg goBILDA servo
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
@@ -136,11 +138,10 @@ public abstract class BioBuzzRobotBase extends OpMode {
             rightIntakeServo.setPower(0);
         }
 
-        windmill = hardwareMap.tryGet(CRServo.class, "windmill");
-        if (windmill != null) {
-            windmill.setDirection(WINDMILL_DIRECTION);
-            windmill.setPower(0);
-        }
+        windmill = hardwareMap.tryGet(Servo.class, "windmill");
+        if (windmill != null) windmill.setPosition(WINDMILL_GUARDING_POSITION);
+
+
     }
 
     protected void mecanumDrive(double forward, double strafe, double rotate) {

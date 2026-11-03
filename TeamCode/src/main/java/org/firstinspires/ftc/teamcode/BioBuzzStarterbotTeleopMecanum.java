@@ -33,6 +33,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     static final double FEED_DURATION = 2.0;
     static final double FIRE_DURATION = 1.5;
+    static final double WINDMILL_LEAD_TIME = 0.3; // windmill reaches shooting position this long before the transfer tilts
 
     double intakePower;
     ShootState shootState = ShootState.IDLE;
@@ -143,7 +144,11 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         if (intake != null) intake.setPower(intakePower);
         if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
         if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
-        if (windmill != null) windmill.setPower(intakePower);
+        if (windmill != null) {
+            boolean windmillShooting = shootState == ShootState.FIRING
+                    || (shootState == ShootState.FEEDING && fireTimer.seconds() >= FEED_DURATION - WINDMILL_LEAD_TIME);
+            windmill.setPosition(windmillShooting ? WINDMILL_SHOOTING_POSITION : WINDMILL_GUARDING_POSITION);
+        }
 
         telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
@@ -161,7 +166,11 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         } else {
             telemetry.addData("Transfer", "NOT CONFIGURED");
         }
-        telemetry.addData("Windmill", windmill != null ? String.format("power=%.1f", windmill.getPower()) : "NOT CONFIGURED");
+        if (windmill != null) {
+            telemetry.addData("Windmill", "pos=%.2f", windmill.getPosition());
+        } else {
+            telemetry.addData("Windmill", "NOT CONFIGURED");
+        }
     }
 
     @Override
