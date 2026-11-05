@@ -38,6 +38,12 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
     double intakePower;
     ShootState shootState = ShootState.IDLE;
     boolean prevSquare = false;
+    boolean prevCircle = false;
+    boolean prevTriangle = false;
+    boolean prevCross = false;
+    // Launcher speed for the current shot, chosen by the button that started it.
+    int shotTarget = LAUNCHER_TARGET_VELOCITY;
+    int shotMin = LAUNCHER_MIN_VELOCITY;
     ElapsedTime fireTimer = new ElapsedTime();
 
     // Smoothed drive commands (see deadzone() and slew()).
@@ -89,22 +95,39 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         }
 
         boolean squarePressed = gamepad1.square && !prevSquare;
+        boolean circlePressed = gamepad1.circle && !prevCircle;
+        boolean trianglePressed = gamepad1.triangle && !prevTriangle;
+        boolean crossPressed = gamepad1.cross && !prevCross;
         prevSquare = gamepad1.square;
+        prevCircle = gamepad1.circle;
+        prevTriangle = gamepad1.triangle;
+        prevCross = gamepad1.cross;
+        // Any shoot button starts a shot, and any of them cancels one in progress.
+        boolean shootPressed = squarePressed || circlePressed || trianglePressed || crossPressed;
 
         switch (shootState) {
             case IDLE:
-                if (squarePressed && launcher != null) {
+                if (shootPressed && launcher != null) {
+                    if (squarePressed) {
+                        shotTarget = LAUNCHER_TARGET_VELOCITY;
+                        shotMin = LAUNCHER_MIN_VELOCITY;
+                    } else {
+                        shotTarget = circlePressed ? LAUNCHER_CIRCLE_VELOCITY
+                                : trianglePressed ? LAUNCHER_TRIANGLE_VELOCITY
+                                : LAUNCHER_CROSS_VELOCITY;
+                        shotMin = shotTarget - LAUNCHER_READY_MARGIN;
+                    }
                     shootState = ShootState.SPINNING_UP;
-                    launcher.setVelocity(LAUNCHER_TARGET_VELOCITY);
+                    launcher.setVelocity(shotTarget);
                 }
                 break;
 
             case SPINNING_UP:
-                if (squarePressed) {
+                if (shootPressed) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
                     if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
-                } else if (Math.abs(launcher.getVelocity()) >= LAUNCHER_MIN_VELOCITY) {
+                } else if (Math.abs(launcher.getVelocity()) >= shotMin) {
                     shootState = ShootState.FEEDING;
                     fireTimer.reset();
                 }
@@ -112,7 +135,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
             case FEEDING:
                 intakePower = 1.0;
-                if (squarePressed) {
+                if (shootPressed) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
                     if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
@@ -125,7 +148,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
             case FIRING:
                 intakePower = 1.0;
-                if (squarePressed || fireTimer.seconds() >= FIRE_DURATION) {
+                if (shootPressed || fireTimer.seconds() >= FIRE_DURATION) {
                     shootState = ShootState.IDLE;
                     launcher.setVelocity(0);
                     if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
@@ -153,11 +176,11 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-        telemetry.addData("Buttons", "RB=%b LB=%b Square=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.dpad_up, gamepad1.dpad_down);
+        telemetry.addData("Buttons", "RB=%b LB=%b Sq=%b Ci=%b Tr=%b Cr=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.circle, gamepad1.triangle, gamepad1.cross, gamepad1.dpad_up, gamepad1.dpad_down);
         telemetry.addData("Intake", "power=%.1f | %s", intakePower, intake != null ? "OK" : "NOT CONFIGURED");
         if (launcher != null) {
             double speed = Math.abs(launcher.getVelocity());
-            telemetry.addData("Launcher", "%.0f / %d %s", speed, LAUNCHER_TARGET_VELOCITY, speed >= LAUNCHER_MIN_VELOCITY ? "READY" : "");
+            telemetry.addData("Launcher", "%.0f / %d %s", speed, shotTarget, speed >= shotMin ? "READY" : "");
         } else {
             telemetry.addData("Launcher", "NOT CONFIGURED");
         }

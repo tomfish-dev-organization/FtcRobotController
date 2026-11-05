@@ -52,10 +52,18 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_TARGET_VELOCITY = 1125;
     public static final int LAUNCHER_MIN_VELOCITY = 1050;
 
+    // Other shot speeds for the circle, triangle and cross buttons (square uses the target above).
+    // TODO: placeholder values, tune on the robot.
+    public static final int LAUNCHER_CIRCLE_VELOCITY = 1025;
+    public static final int LAUNCHER_TRIANGLE_VELOCITY = 1325;
+    public static final int LAUNCHER_CROSS_VELOCITY = 1225;
+    // How far below its target the launcher must be before a shot counts as ready.
+    public static final int LAUNCHER_READY_MARGIN = LAUNCHER_TARGET_VELOCITY - LAUNCHER_MIN_VELOCITY;
+
     public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
     public static final double TRANSFER_TILT_POSITION = 0.10; // 8 deg: tilted 4 deg toward the flywheel (0 hits the wheel)
-    public static final double WINDMILL_GUARDING_POSITION = 0;
-    public static final double WINDMILL_SHOOTING_POSITION = 0.2; // ~60 deg on a 300 deg goBILDA servo
+    public static final double WINDMILL_GUARDING_POSITION = 0.2;
+    public static final double WINDMILL_SHOOTING_POSITION = 0.35; // ~60 deg on a 300 deg goBILDA servo
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
