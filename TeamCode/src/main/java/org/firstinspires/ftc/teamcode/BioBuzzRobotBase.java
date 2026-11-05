@@ -57,6 +57,11 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_CIRCLE_VELOCITY = 1025;
     public static final int LAUNCHER_TRIANGLE_VELOCITY = 1325;
     public static final int LAUNCHER_CROSS_VELOCITY = 1225;
+    // Shoot sequence timing, shared by the teleop and the autonomous.
+    public static final double FEED_DURATION = 2.0;
+    public static final double FIRE_DURATION = 1.5;
+    public static final double WINDMILL_LEAD_TIME = 0.3; // windmill reaches shooting position this long before the transfer tilts
+
     // How far below its target the launcher must be before a shot counts as ready.
     public static final int LAUNCHER_READY_MARGIN = LAUNCHER_TARGET_VELOCITY - LAUNCHER_MIN_VELOCITY;
 

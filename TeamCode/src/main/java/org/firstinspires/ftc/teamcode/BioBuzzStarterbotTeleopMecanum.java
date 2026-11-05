@@ -31,10 +31,6 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     enum ShootState { IDLE, SPINNING_UP, FEEDING, FIRING }
 
-    static final double FEED_DURATION = 2.0;
-    static final double FIRE_DURATION = 1.5;
-    static final double WINDMILL_LEAD_TIME = 0.3; // windmill reaches shooting position this long before the transfer tilts
-
     double intakePower;
     ShootState shootState = ShootState.IDLE;
     boolean prevSquare = false;
