@@ -54,9 +54,9 @@ public abstract class BioBuzzRobotBase extends OpMode {
 
     // Other shot speeds for the circle, triangle and cross buttons (square uses the target above).
     // TODO: placeholder values, tune on the robot.
-    public static final int LAUNCHER_CIRCLE_VELOCITY = 1025;
-    public static final int LAUNCHER_TRIANGLE_VELOCITY = 1325;
-    public static final int LAUNCHER_CROSS_VELOCITY = 1225;
+    public static final int LAUNCHER_CIRCLE_VELOCITY = 1325;
+    public static final int LAUNCHER_TRIANGLE_VELOCITY = 1225;
+    public static final int LAUNCHER_CROSS_VELOCITY = 1025;
     // Shoot sequence timing, shared by the teleop and the autonomous.
     public static final double FEED_DURATION = 2.0;
     public static final double FIRE_DURATION = 1.5;
