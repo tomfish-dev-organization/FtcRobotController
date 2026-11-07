@@ -7,12 +7,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Starter autonomous for the BioBuzz StarterBot. Hardware setup and drive math come from
  * BioBuzzRobotBase, so there is nothing to redeclare here.
  *
- * This is a placeholder routine: drive forward for a fixed time, then stop. Replace the
- * steps in loop() with your real autonomous.
+ * Drive-only routine: drive forward for a fixed time, then drive backward for the same time,
+ * then stop. The launcher, intake and transfer are never powered in auto, so nothing shoots.
  */
 @Autonomous(name = "Biobuzz Autonomous", group = "StarterBot")
 //@Disabled
 public class BioBuzzAutonomousMecanumBot extends BioBuzzRobotBase {
+
+    // Tune these on the field: how long each leg lasts and how fast the robot drives.
+    private static final double DRIVE_TIME_SECONDS = 1.5;
+    private static final double DRIVE_POWER = 0.5;
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -29,12 +33,20 @@ public class BioBuzzAutonomousMecanumBot extends BioBuzzRobotBase {
 
     @Override
     public void loop() {
-        if (runtime.seconds() < 1.5) {
-            mecanumDrive(0.5, 0, 0);
+        double t = runtime.seconds();
+        String step;
+        if (t < DRIVE_TIME_SECONDS) {
+            step = "Forward";
+            mecanumDrive(DRIVE_POWER, 0, 0);
+        } else if (t < 2 * DRIVE_TIME_SECONDS) {
+            step = "Backward";
+            mecanumDrive(-DRIVE_POWER, 0, 0);
         } else {
+            step = "Done";
             mecanumDrive(0, 0, 0);
         }
 
+        telemetry.addData("Step", step);
         telemetry.addData("Time", "%.1f s", runtime.seconds());
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
     }
