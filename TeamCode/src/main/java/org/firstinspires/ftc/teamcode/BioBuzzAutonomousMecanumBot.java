@@ -83,10 +83,8 @@ public class BioBuzzAutonomousMecanumBot extends BioBuzzRobotBase {
                 break;
         }
 
-        // The intake motor and servos only run to feed the launcher during the shoot sequence.
+        // The intake motor only runs to feed the launcher during the shoot sequence.
         if (intake != null) intake.setPower(intakePower);
-        if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
-        if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
         if (windmill != null) {
             windmill.setPosition(windmillShooting ? WINDMILL_SHOOTING_POSITION : WINDMILL_GUARDING_POSITION);
         }
@@ -109,8 +107,6 @@ public class BioBuzzAutonomousMecanumBot extends BioBuzzRobotBase {
         mecanumDrive(0, 0, 0);
         if (launcher != null) launcher.setVelocity(0);
         if (intake != null) intake.setPower(0);
-        if (leftIntakeServo != null) leftIntakeServo.setPower(0);
-        if (rightIntakeServo != null) rightIntakeServo.setPower(0);
         if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION);
         if (windmill != null) windmill.setPosition(WINDMILL_GUARDING_POSITION);
     }

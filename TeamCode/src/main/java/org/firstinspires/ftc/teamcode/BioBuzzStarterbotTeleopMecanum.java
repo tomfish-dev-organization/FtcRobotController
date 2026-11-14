@@ -175,8 +175,6 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         if (collector != null) collector.setPosition(collectorDown ? COLLECTOR_DOWN_POSITION : COLLECTOR_UP_POSITION);
 
         if (intake != null) intake.setPower(intakePower);
-        if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
-        if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
         if (windmill != null) {
             boolean windmillShooting = shootState == ShootState.FIRING
                     || (shootState == ShootState.FEEDING && fireTimer.seconds() >= FEED_DURATION - WINDMILL_LEAD_TIME);

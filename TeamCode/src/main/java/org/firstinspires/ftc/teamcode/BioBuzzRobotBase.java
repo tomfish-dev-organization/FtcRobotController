@@ -4,7 +4,6 @@ import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.BRAKE;
 import static com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior.FLOAT;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -26,8 +25,6 @@ public abstract class BioBuzzRobotBase extends OpMode {
      */
     public static final DcMotorSimple.Direction LAUNCHER_DIRECTION = DcMotorSimple.Direction.FORWARD;
     public static final DcMotorSimple.Direction INTAKE_DIRECTION = DcMotorSimple.Direction.REVERSE;
-    public static final DcMotorSimple.Direction LEFT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.REVERSE;
-    public static final DcMotorSimple.Direction RIGHT_INTAKE_SERVO_DIRECTION = DcMotorSimple.Direction.FORWARD;
 
 
     // Declare OpMode members.
@@ -37,8 +34,6 @@ public abstract class BioBuzzRobotBase extends OpMode {
     protected DcMotor rightBackDrive = null;
     protected DcMotorEx launcher = null;
     protected DcMotor intake = null;
-    protected CRServo leftIntakeServo = null;
-    protected CRServo rightIntakeServo = null;
     protected Servo transfer = null;
     protected Servo windmill = null;
     protected Servo blocker = null;
@@ -74,20 +69,21 @@ public abstract class BioBuzzRobotBase extends OpMode {
 
     /*
      * Blocker and collector positions, written in degrees and converted to the 0-1 servo scale.
-     * Set SERVO_RANGE_DEGREES to the full travel of these servos (180 for most standard servos,
-     * 300 for goBILDA dual-mode servos, 270 for Axon / REV Smart Servo) so the angles come out right.
+     * Each *_RANGE_DEGREES is the full travel of that servo (180 for most standard servos,
+     * 300 for goBILDA Speed/Torque servos, 270 for Axon / REV Smart Servo) so the angles come out right.
      * 0 degrees is position 0.0: one end of the servo's travel. Mount the arm while the robot is
      * initialized so it sits in its starting pose at 0.
      */
-    public static final double SERVO_RANGE_DEGREES = 180.0;
+    public static final double BLOCKER_RANGE_DEGREES = 300.0;   // goBILDA Speed servo
+    public static final double COLLECTOR_RANGE_DEGREES = 180.0;
     public static final double BLOCKER_DOWN_DEGREES = 0.0;
     public static final double BLOCKER_UP_DEGREES = 100.0;
     public static final double COLLECTOR_UP_DEGREES = 0.0;   // starting position
     public static final double COLLECTOR_DOWN_DEGREES = 60.0; // pushed down
-    public static final double BLOCKER_DOWN_POSITION = BLOCKER_DOWN_DEGREES / SERVO_RANGE_DEGREES;
-    public static final double BLOCKER_UP_POSITION = BLOCKER_UP_DEGREES / SERVO_RANGE_DEGREES;
-    public static final double COLLECTOR_UP_POSITION = COLLECTOR_UP_DEGREES / SERVO_RANGE_DEGREES;
-    public static final double COLLECTOR_DOWN_POSITION = COLLECTOR_DOWN_DEGREES / SERVO_RANGE_DEGREES;
+    public static final double BLOCKER_DOWN_POSITION = BLOCKER_DOWN_DEGREES / BLOCKER_RANGE_DEGREES;
+    public static final double BLOCKER_UP_POSITION = BLOCKER_UP_DEGREES / BLOCKER_RANGE_DEGREES;
+    public static final double COLLECTOR_UP_POSITION = COLLECTOR_UP_DEGREES / COLLECTOR_RANGE_DEGREES;
+    public static final double COLLECTOR_DOWN_POSITION = COLLECTOR_DOWN_DEGREES / COLLECTOR_RANGE_DEGREES;
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
@@ -109,8 +105,6 @@ public abstract class BioBuzzRobotBase extends OpMode {
         // so the robot can drive with only the four wheel motors configured.
         intake = hardwareMap.tryGet(DcMotor.class, "intake");
         launcher = hardwareMap.tryGet(DcMotorEx.class, "launcher");
-        leftIntakeServo = hardwareMap.tryGet(CRServo.class, "left_intake_servo");
-        rightIntakeServo = hardwareMap.tryGet(CRServo.class, "right_intake_servo");
 
         /*
          * To drive forward, most robots need the motor on one side to be reversed,
@@ -154,21 +148,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
             launcher.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(40, 0, 0, 12.5));
         }
 
-        /*
-         * Much like our drivetrain motors, the right intake servo is reversed so that both
-         * servos work to pull elements into the intake. Setting power also initializes the
-         * servo controller.
-         */
         transfer = hardwareMap.tryGet(Servo.class, "transfer");
-
-        if (leftIntakeServo != null) {
-            leftIntakeServo.setDirection(LEFT_INTAKE_SERVO_DIRECTION);
-            leftIntakeServo.setPower(0);
-        }
-        if (rightIntakeServo != null) {
-            rightIntakeServo.setDirection(RIGHT_INTAKE_SERVO_DIRECTION);
-            rightIntakeServo.setPower(0);
-        }
 
         windmill = hardwareMap.tryGet(Servo.class, "windmill");
         if (windmill != null) windmill.setPosition(WINDMILL_GUARDING_POSITION);
