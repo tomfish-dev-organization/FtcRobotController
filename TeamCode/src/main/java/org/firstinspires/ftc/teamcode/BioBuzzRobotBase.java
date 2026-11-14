@@ -62,8 +62,8 @@ public abstract class BioBuzzRobotBase extends OpMode {
     // How far below its target the launcher must be before a shot counts as ready.
     public static final int LAUNCHER_READY_MARGIN = LAUNCHER_TARGET_VELOCITY - LAUNCHER_MIN_VELOCITY;
 
-    public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
-    public static final double TRANSFER_TILT_POSITION = 0.30; // ~6 deg tilt toward the flywheel (0.25 still went too far up)
+    public static final double TRANSFER_STOW_POSITION = 0.10; // resting, down (higher values tilt it up)
+    public static final double TRANSFER_TILT_POSITION = 0.15; // small tilt up toward the flywheel
     public static final double WINDMILL_GUARDING_POSITION = 0.2;
     public static final double WINDMILL_SHOOTING_POSITION = 0.35; // ~60 deg on a 300 deg goBILDA servo
 
@@ -77,7 +77,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final double BLOCKER_RANGE_DEGREES = 300.0;   // goBILDA Speed servo
     public static final double COLLECTOR_RANGE_DEGREES = 180.0;
     public static final double BLOCKER_DOWN_DEGREES = 0.0;
-    public static final double BLOCKER_UP_DEGREES = 100.0;
+    public static final double BLOCKER_UP_DEGREES = 80.0;
     public static final double COLLECTOR_UP_DEGREES = 0.0;   // starting position
     public static final double COLLECTOR_DOWN_DEGREES = 60.0; // pushed down
     public static final double BLOCKER_DOWN_POSITION = BLOCKER_DOWN_DEGREES / BLOCKER_RANGE_DEGREES;
