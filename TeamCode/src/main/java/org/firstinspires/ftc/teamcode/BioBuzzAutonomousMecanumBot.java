@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * (spin up the launcher, feed, tilt the transfer and fire), then stop. Replace the drive
  * step with your real positioning.
  */
-@Autonomous(name = "Biobuzz Autonomous", group = "StarterBot")
+@Autonomous(name = "Biobuzz Autonomous", group = "StarterBot", preselectTeleOp = "Mec BioBuzz StarterBot Teleop")
 //@Disabled
 public class BioBuzzAutonomousMecanumBot extends BioBuzzRobotBase {
 
