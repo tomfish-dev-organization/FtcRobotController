@@ -41,6 +41,8 @@ public abstract class BioBuzzRobotBase extends OpMode {
     protected CRServo rightIntakeServo = null;
     protected Servo transfer = null;
     protected Servo windmill = null;
+    protected Servo blocker = null;
+    protected Servo collector = null;
 
     /*
      * These two variables are used to control the velocity of the launcher motor.
@@ -66,9 +68,26 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_READY_MARGIN = LAUNCHER_TARGET_VELOCITY - LAUNCHER_MIN_VELOCITY;
 
     public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
-    public static final double TRANSFER_TILT_POSITION = 0.10; // 8 deg: tilted 4 deg toward the flywheel (0 hits the wheel)
+    public static final double TRANSFER_TILT_POSITION = 0.25; // small tilt toward the flywheel (0.10 swung far enough to hit the wheels)
     public static final double WINDMILL_GUARDING_POSITION = 0.2;
     public static final double WINDMILL_SHOOTING_POSITION = 0.35; // ~60 deg on a 300 deg goBILDA servo
+
+    /*
+     * Blocker and collector positions, written in degrees and converted to the 0-1 servo scale.
+     * Set SERVO_RANGE_DEGREES to the full travel of these servos (180 for most standard servos,
+     * 300 for goBILDA dual-mode servos, 270 for Axon / REV Smart Servo) so the angles come out right.
+     * 0 degrees is position 0.0: one end of the servo's travel. Mount the arm while the robot is
+     * initialized so it sits in its starting pose at 0.
+     */
+    public static final double SERVO_RANGE_DEGREES = 180.0;
+    public static final double BLOCKER_DOWN_DEGREES = 0.0;
+    public static final double BLOCKER_UP_DEGREES = 160.0;
+    public static final double COLLECTOR_UP_DEGREES = 0.0;   // starting position
+    public static final double COLLECTOR_DOWN_DEGREES = 60.0; // pushed down
+    public static final double BLOCKER_DOWN_POSITION = BLOCKER_DOWN_DEGREES / SERVO_RANGE_DEGREES;
+    public static final double BLOCKER_UP_POSITION = BLOCKER_UP_DEGREES / SERVO_RANGE_DEGREES;
+    public static final double COLLECTOR_UP_POSITION = COLLECTOR_UP_DEGREES / SERVO_RANGE_DEGREES;
+    public static final double COLLECTOR_DOWN_POSITION = COLLECTOR_DOWN_DEGREES / SERVO_RANGE_DEGREES;
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
@@ -153,6 +172,12 @@ public abstract class BioBuzzRobotBase extends OpMode {
 
         windmill = hardwareMap.tryGet(Servo.class, "windmill");
         if (windmill != null) windmill.setPosition(WINDMILL_GUARDING_POSITION);
+
+        blocker = hardwareMap.tryGet(Servo.class, "blocker");
+        if (blocker != null) blocker.setPosition(BLOCKER_DOWN_POSITION);
+
+        collector = hardwareMap.tryGet(Servo.class, "collector");
+        if (collector != null) collector.setPosition(COLLECTOR_UP_POSITION);
 
 
     }
