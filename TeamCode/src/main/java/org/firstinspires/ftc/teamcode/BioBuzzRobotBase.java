@@ -81,7 +81,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
      */
     public static final double SERVO_RANGE_DEGREES = 180.0;
     public static final double BLOCKER_DOWN_DEGREES = 0.0;
-    public static final double BLOCKER_UP_DEGREES = 160.0;
+    public static final double BLOCKER_UP_DEGREES = 100.0;
     public static final double COLLECTOR_UP_DEGREES = 0.0;   // starting position
     public static final double COLLECTOR_DOWN_DEGREES = 60.0; // pushed down
     public static final double BLOCKER_DOWN_POSITION = BLOCKER_DOWN_DEGREES / SERVO_RANGE_DEGREES;
