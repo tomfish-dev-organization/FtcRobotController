@@ -37,6 +37,10 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
     boolean prevCircle = false;
     boolean prevTriangle = false;
     boolean prevCross = false;
+    boolean prevDpadLeft = false;
+    boolean prevDpadRight = false;
+    boolean blockerUp = false;
+    boolean collectorDown = false;
     // Launcher speed for the current shot, chosen by the button that started it.
     int shotTarget = LAUNCHER_TARGET_VELOCITY;
     int shotMin = LAUNCHER_MIN_VELOCITY;
@@ -65,6 +69,8 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         if (launcher == null) telemetry.addData("WARNING", "launcher not configured");
         if (transfer == null) telemetry.addData("WARNING", "transfer not configured");
         if (windmill == null) telemetry.addData("WARNING", "windmill not configured");
+        if (blocker == null) telemetry.addData("WARNING", "blocker not configured");
+        if (collector == null) telemetry.addData("WARNING", "collector not configured");
     }
 
     @Override
@@ -160,9 +166,15 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
             }
         }
 
+        // D-pad left toggles the blocker up/down, d-pad right toggles the collector down/up.
+        if (gamepad1.dpad_left && !prevDpadLeft) blockerUp = !blockerUp;
+        if (gamepad1.dpad_right && !prevDpadRight) collectorDown = !collectorDown;
+        prevDpadLeft = gamepad1.dpad_left;
+        prevDpadRight = gamepad1.dpad_right;
+        if (blocker != null) blocker.setPosition(blockerUp ? BLOCKER_UP_POSITION : BLOCKER_DOWN_POSITION);
+        if (collector != null) collector.setPosition(collectorDown ? COLLECTOR_DOWN_POSITION : COLLECTOR_UP_POSITION);
+
         if (intake != null) intake.setPower(intakePower);
-        if (leftIntakeServo != null) leftIntakeServo.setPower(intakePower);
-        if (rightIntakeServo != null) rightIntakeServo.setPower(intakePower);
         if (windmill != null) {
             boolean windmillShooting = shootState == ShootState.FIRING
                     || (shootState == ShootState.FEEDING && fireTimer.seconds() >= FEED_DURATION - WINDMILL_LEAD_TIME);
@@ -172,7 +184,7 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         telemetry.addData("Shoot", shootState);
         telemetry.addData("Stick", "fwd=%.2f strafe=%.2f turn=%.2f", -gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         telemetry.addData("Motors", "LF=%.2f RF=%.2f LB=%.2f RB=%.2f", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-        telemetry.addData("Buttons", "RB=%b LB=%b Sq=%b Ci=%b Tr=%b Cr=%b DU=%b DD=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.circle, gamepad1.triangle, gamepad1.cross, gamepad1.dpad_up, gamepad1.dpad_down);
+        telemetry.addData("Buttons", "RB=%b LB=%b Sq=%b Ci=%b Tr=%b Cr=%b DU=%b DD=%b DL=%b DR=%b", gamepad1.right_bumper, gamepad1.left_bumper, gamepad1.square, gamepad1.circle, gamepad1.triangle, gamepad1.cross, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_left, gamepad1.dpad_right);
         telemetry.addData("Intake", "power=%.1f | %s", intakePower, intake != null ? "OK" : "NOT CONFIGURED");
         if (launcher != null) {
             double speed = Math.abs(launcher.getVelocity());
@@ -190,6 +202,8 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         } else {
             telemetry.addData("Windmill", "NOT CONFIGURED");
         }
+        telemetry.addData("Blocker", blocker != null ? String.format("%s pos=%.2f", blockerUp ? "UP" : "DOWN", blocker.getPosition()) : "NOT CONFIGURED");
+        telemetry.addData("Collector", collector != null ? String.format("%s pos=%.2f", collectorDown ? "DOWN" : "UP", collector.getPosition()) : "NOT CONFIGURED");
     }
 
     @Override
