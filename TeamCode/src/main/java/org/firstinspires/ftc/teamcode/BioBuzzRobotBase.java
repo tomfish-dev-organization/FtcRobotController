@@ -63,7 +63,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final int LAUNCHER_READY_MARGIN = LAUNCHER_TARGET_VELOCITY - LAUNCHER_MIN_VELOCITY;
 
     public static final double TRANSFER_STOW_POSITION = 0.333; // 60 deg: resting, toward the intake
-    public static final double TRANSFER_TILT_POSITION = 0.25; // small tilt toward the flywheel (0.10 swung far enough to hit the wheels)
+    public static final double TRANSFER_TILT_POSITION = 0.30; // ~6 deg tilt toward the flywheel (0.25 still went too far up)
     public static final double WINDMILL_GUARDING_POSITION = 0.2;
     public static final double WINDMILL_SHOOTING_POSITION = 0.35; // ~60 deg on a 300 deg goBILDA servo
 
@@ -149,6 +149,7 @@ public abstract class BioBuzzRobotBase extends OpMode {
         }
 
         transfer = hardwareMap.tryGet(Servo.class, "transfer");
+        if (transfer != null) transfer.setPosition(TRANSFER_STOW_POSITION); // start down
 
         windmill = hardwareMap.tryGet(Servo.class, "windmill");
         if (windmill != null) windmill.setPosition(WINDMILL_GUARDING_POSITION);
