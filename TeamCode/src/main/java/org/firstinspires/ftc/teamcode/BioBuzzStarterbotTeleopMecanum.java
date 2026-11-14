@@ -159,9 +159,10 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         }
 
         if (transfer != null) {
-            if (gamepad1.dpad_down) {
+            // D-pad up tilts the transfer up, d-pad down puts it back down.
+            if (gamepad1.dpad_up) {
                 transfer.setPosition(TRANSFER_TILT_POSITION);
-            } else if (gamepad1.dpad_up) {
+            } else if (gamepad1.dpad_down) {
                 transfer.setPosition(TRANSFER_STOW_POSITION);
             }
         }
