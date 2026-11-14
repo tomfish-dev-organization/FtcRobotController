@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 /*
  * Shared hardware setup for the BioBuzz StarterBot. Both the teleop and the autonomous
@@ -154,13 +155,19 @@ public abstract class BioBuzzRobotBase extends OpMode {
         windmill = hardwareMap.tryGet(Servo.class, "windmill");
         if (windmill != null) windmill.setPosition(WINDMILL_GUARDING_POSITION);
 
+        // Blocker and collector get their first position in start(), the same way the servo
+        // test drives them, so they don't fight anything during init.
         blocker = hardwareMap.tryGet(Servo.class, "blocker");
-        if (blocker != null) blocker.setPosition(BLOCKER_DOWN_POSITION);
-
         collector = hardwareMap.tryGet(Servo.class, "collector");
-        if (collector != null) collector.setPosition(COLLECTOR_UP_POSITION);
 
 
+    }
+
+    /** Turn on the servo's signal (as the servo test does) and send it to a position. */
+    protected static void moveServo(Servo servo, double position) {
+        if (servo == null) return;
+        if (servo instanceof ServoImplEx) ((ServoImplEx) servo).setPwmEnable();
+        servo.setPosition(position);
     }
 
     protected void mecanumDrive(double forward, double strafe, double rotate) {

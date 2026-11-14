@@ -79,6 +79,8 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
 
     @Override
     public void start() {
+        moveServo(blocker, BLOCKER_DOWN_POSITION);
+        moveServo(collector, COLLECTOR_UP_POSITION);
     }
 
     @Override
@@ -168,12 +170,17 @@ public class BioBuzzStarterbotTeleopMecanum extends BioBuzzRobotBase {
         }
 
         // D-pad left toggles the blocker up/down, d-pad right toggles the collector down/up.
-        if (gamepad1.dpad_left && !prevDpadLeft) blockerUp = !blockerUp;
-        if (gamepad1.dpad_right && !prevDpadRight) collectorDown = !collectorDown;
+        // Only send a new position when the button is pressed, like the servo test.
+        if (gamepad1.dpad_left && !prevDpadLeft) {
+            blockerUp = !blockerUp;
+            moveServo(blocker, blockerUp ? BLOCKER_UP_POSITION : BLOCKER_DOWN_POSITION);
+        }
+        if (gamepad1.dpad_right && !prevDpadRight) {
+            collectorDown = !collectorDown;
+            moveServo(collector, collectorDown ? COLLECTOR_DOWN_POSITION : COLLECTOR_UP_POSITION);
+        }
         prevDpadLeft = gamepad1.dpad_left;
         prevDpadRight = gamepad1.dpad_right;
-        if (blocker != null) blocker.setPosition(blockerUp ? BLOCKER_UP_POSITION : BLOCKER_DOWN_POSITION);
-        if (collector != null) collector.setPosition(collectorDown ? COLLECTOR_DOWN_POSITION : COLLECTOR_UP_POSITION);
 
         if (intake != null) intake.setPower(intakePower);
         if (windmill != null) {
