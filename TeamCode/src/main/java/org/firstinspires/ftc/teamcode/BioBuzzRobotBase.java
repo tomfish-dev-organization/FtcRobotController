@@ -69,22 +69,16 @@ public abstract class BioBuzzRobotBase extends OpMode {
     public static final double WINDMILL_SHOOTING_POSITION = 0.35; // ~60 deg on a 300 deg goBILDA servo
 
     /*
-     * Blocker and collector positions, written in degrees and converted to the 0-1 servo scale.
-     * Each *_RANGE_DEGREES is the full travel of that servo (180 for most standard servos,
-     * 300 for goBILDA Speed/Torque servos, 270 for Axon / REV Smart Servo) so the angles come out right.
-     * 0 degrees is position 0.0: one end of the servo's travel. Mount the arm while the robot is
-     * initialized so it sits in its starting pose at 0.
+     * Blocker and collector positions on the 0-1 servo scale. On this robot these servos only
+     * respond near the middle of their range (0.5 works, 0.0 and 1.0 don't), so the starting
+     * positions are 0.5 and the moves are measured from there.
+     * Find the exact numbers with "BioBuzz Servo Test" (d-pad up/down nudges by 0.01) and put
+     * them here. If a servo moves the wrong way, use 0.5 minus the offset instead of plus.
      */
-    public static final double BLOCKER_RANGE_DEGREES = 300.0;   // goBILDA Speed servo
-    public static final double COLLECTOR_RANGE_DEGREES = 180.0;
-    public static final double BLOCKER_DOWN_DEGREES = 0.0;
-    public static final double BLOCKER_UP_DEGREES = 80.0;
-    public static final double COLLECTOR_UP_DEGREES = 0.0;   // starting position
-    public static final double COLLECTOR_DOWN_DEGREES = 60.0; // pushed down
-    public static final double BLOCKER_DOWN_POSITION = BLOCKER_DOWN_DEGREES / BLOCKER_RANGE_DEGREES;
-    public static final double BLOCKER_UP_POSITION = BLOCKER_UP_DEGREES / BLOCKER_RANGE_DEGREES;
-    public static final double COLLECTOR_UP_POSITION = COLLECTOR_UP_DEGREES / COLLECTOR_RANGE_DEGREES;
-    public static final double COLLECTOR_DOWN_POSITION = COLLECTOR_DOWN_DEGREES / COLLECTOR_RANGE_DEGREES;
+    public static final double BLOCKER_DOWN_POSITION = 0.50;
+    public static final double BLOCKER_UP_POSITION = 0.77;      // ~80 deg up on a 300 deg servo
+    public static final double COLLECTOR_UP_POSITION = 0.50;    // starting position
+    public static final double COLLECTOR_DOWN_POSITION = 0.83;  // ~60 deg down on a 180 deg servo
 
     // The power last sent to each drive motor, kept here so OpModes can show it in telemetry.
     protected double leftFrontPower;
